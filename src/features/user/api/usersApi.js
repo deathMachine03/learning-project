@@ -23,8 +23,5 @@ async function requestJson(path, options = {}) {
 
 export async function getUsers() {
   return requestJson("/users");
-}
+}   
 
-export async function getAdress(params) {
-    
-}
