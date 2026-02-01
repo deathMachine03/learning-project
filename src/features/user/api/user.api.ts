@@ -14,7 +14,7 @@ export interface UserApi {
 const BASE_URL = "https://jsonplaceholder.typicode.com";
 
 async function request<T>(url:string): Promise<T> {
-    const res = await fetch(`${BASE_URL} ${url}`);
+    const res = await fetch(`${BASE_URL}${url}`);
     if (!res.ok) {
         throw new Error('request failed')
     }
