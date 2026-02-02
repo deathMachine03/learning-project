@@ -1,29 +1,47 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { getUsersUseCase } from "../model/get-users.usecase";
-import { UserRow } from "../model/user.mapper";
+import type { UserRow } from "../model/user.mapper";
+
+type Status = "idle" | "loading" | "success" | "empty" | "error";
 
 export function useUsers() {
-    const [users,setUsers] = useState<UserRow[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<Status>("idle");
+  const [users, setUsers] = useState<UserRow[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-    async function loadUsers() {
-        setLoading(true);
-        setError(null);
-        
-        try{
-            const data = await getUsersUseCase();
-            setUsers(data);
-        }   catch {
-            setError("Error");
-        }   finally {
-            setLoading(false)
-        }
+  const aliveRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      aliveRef.current = false;
+    };
+  }, []);
+
+  const loadUsers = useCallback(async () => {
+    setStatus("loading");
+    setError(null);
+
+    try {
+      const data = await getUsersUseCase();
+      if (!aliveRef.current) return;
+
+      if (data.length === 0) {
+        setStatus("empty");
+        setUsers([]);
+      } else {
+        setStatus("success");
+        setUsers(data);
+      }
+    } catch {
+      if (!aliveRef.current) return;
+      setStatus("error");
+      setError("Ошибка загрузки");
     }
+  }, []);
 
-    useEffect(() => {
-        loadUsers();
-    }, []);
+  useEffect(() => {
+    loadUsers();
+  }, [loadUsers]);
 
-    return {users, loading, error, reload: loadUsers};
+  return { status, users, error, reload: loadUsers };
 }

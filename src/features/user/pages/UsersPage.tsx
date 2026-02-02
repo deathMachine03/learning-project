@@ -2,13 +2,13 @@ import { useUsers } from "../hooks/useUsers";
 import { UsersTable } from "../components/UsersTable";
 
 export function UsersPage() {
-  const { users, loading, error, reload } = useUsers();
+  const { users, status, error, reload } = useUsers();
 
-  if (loading) {
+  if (status === "loading") {
     return <div className="p-4">Loading...</div>;
   }
 
-  if (error) {
+  if (status === "error") {
     return (
       <div className="p-4 space-y-3">
         <div className="text-red-400">Error: {error}</div>
@@ -22,10 +22,11 @@ export function UsersPage() {
     );
   }
 
-  if (users.length === 0) {
+  if (status === "empty") {
     return <div className="p-4">No data</div>;
   }
 
+  if (status === "success") {
   return (
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
@@ -42,4 +43,6 @@ export function UsersPage() {
       <UsersTable rows={users} />
     </div>
   );
+};
+
 }
