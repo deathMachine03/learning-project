@@ -18,6 +18,7 @@ export function useUsers() {
   }, []);
 
   const loadUsers = useCallback(async () => {
+    
     setStatus("loading");
     setError(null);
 
@@ -40,6 +41,7 @@ export function useUsers() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadUsers();
   }, [loadUsers]);
 
