@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { getUsersUseCase } from "../model/get-users.usecase";
-import type { UserRow } from "../model/user.mapper";
+import { getUsersUseCase } from "../model/usecase/get-users.usecase";
+import type { UserRow } from "../model/mapper/user.mapper";
 
 type Status = "idle" | "loading" | "success" | "empty" | "error";
 

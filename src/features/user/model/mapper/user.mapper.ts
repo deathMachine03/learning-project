@@ -1,4 +1,4 @@
-import { UserApi } from "../api/user.api";
+import { UserApi } from "../../api/user.api";
 
 export interface UserRow {
   id: number;

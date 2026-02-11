@@ -1,4 +1,4 @@
-import type { UserRow } from "../model/user.mapper";
+import type { UserRow } from "../model/mapper/user.mapper";
 
 type UsersTableProps = {
   rows: UserRow[];
