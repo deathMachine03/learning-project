@@ -1,4 +1,4 @@
-export interface PostsApi {
+export interface PostApi {
   userId: number;
   id: number;
   title: string;
@@ -17,6 +17,6 @@ async function request<T>(url:string): Promise<T> {
     return res.json()
 }
 
-export async function getPostsApi(): Promise<PostsApi[]> {
-    return request<PostsApi[]>("/posts")
+export async function getPostsApi(): Promise<PostApi[]> {
+    return request<PostApi[]>("/posts")
 }

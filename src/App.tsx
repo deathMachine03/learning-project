@@ -1,7 +1,7 @@
 import {Routes, Route, Navigate} from "react-router-dom"
 import "./App.css";
 import { UsersPage } from "./features/user/pages/UsersPage";
-import { PostsPage } from "./features/user/pages/PostsPage";
+import { PostsPage } from "./features/post/pages/PostsPage";
 
 function App() {
 

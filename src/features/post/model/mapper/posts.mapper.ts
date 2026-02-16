@@ -1,12 +1,12 @@
-import { PostsApi } from "../../api/posts.api";
+import { PostApi } from "../../api/posts.api";
 
-export interface PostsRow {
+export interface PostCardModel {
     id: number;
     title: string;
     body: string; 
 }
 
-export function mapPostsToRow(post: PostsApi): PostsRow {
+export function mapPostsToRow(post: PostApi): PostCardModel {
     return {
         id: post.id,
         title: post.title,
