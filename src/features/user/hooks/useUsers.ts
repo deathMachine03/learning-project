@@ -1,49 +1,58 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect } from "react";
+import { useQuery, keepPreviousData, useQueryClient } from "@tanstack/react-query";
 import { getUsersUseCase } from "../model/usecase/get-users.usecase";
 import type { UserRow } from "../model/mapper/user.mapper";
 
-type Status = "idle" | "loading" | "success" | "empty" | "error";
+type Status = "loading" | "success" | "empty" | "error";
 
-export function useUsers() {
-  const [status, setStatus] = useState<Status>("idle");
-  const [users, setUsers] = useState<UserRow[]>([]);
-  const [error, setError] = useState<string | null>(null);
+export function useUsers(page: number, pageSize: number) {
+  const qc = useQueryClient();
 
-  const aliveRef = useRef(true);
+  const query = useQuery({
+    queryKey: ["users", page, pageSize],
+    queryFn: ({ signal }) =>
+      getUsersUseCase(page, pageSize, signal),
+    placeholderData: keepPreviousData, // не очищаем таблицу при смене страницы
+    staleTime: 30_000,
+  });
 
+
+  const users: UserRow[] = query.data?.items ?? [];
+  const hasNext = query.data?.hasNext ?? false;
+
+  // Prefetch следующей страницы (ускоряет Next)
   useEffect(() => {
-    return () => {
-      aliveRef.current = false;
-    };
-  }, []);
+    if (!hasNext) return;
 
-  const loadUsers = useCallback(async () => {
-    
-    setStatus("loading");
-    setError(null);
+    const nextPage = page + 1;
 
-    try {
-      const data = await getUsersUseCase();
-      if (!aliveRef.current) return;
+    qc.prefetchQuery({
+      queryKey: ["users", nextPage, pageSize],
+      queryFn: ({ signal }) => getUsersUseCase(nextPage, pageSize, signal),
+      staleTime: 30_000,
+    });
+  }, [qc, page, pageSize, hasNext]);
 
-      if (data.length === 0) {
-        setStatus("empty");
-        setUsers([]);
-      } else {
-        setStatus("success");
-        setUsers(data);
-      }
-    } catch {
-      if (!aliveRef.current) return;
-      setStatus("error");
-      setError("Ошибка загрузки");
-    }
-  }, []);
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadUsers();
-  }, [loadUsers]);
+   const status: Status =
+    query.isPending
+      ? "loading"
+      : query.isError
+      ? "error"
+      : users.length === 0
+      ? "empty"
+      : "success";
 
-  return { status, users, error, reload: loadUsers };
+    const reload = () => {
+    void query.refetch();
+  };
+
+    return {
+    status,
+    users,
+    hasNext: query.data?.hasNext ?? false,
+    error: query.isError ? "Ошибка загрузки" : null,
+    isFetching: query.isFetching, // мягкая загрузка
+    reload
+  };
 }

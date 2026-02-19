@@ -13,16 +13,23 @@ export interface UserApi {
 
 const BASE_URL = "https://jsonplaceholder.typicode.com";
 
-async function request<T>(url:string): Promise<T> {
-    const res = await fetch(`${BASE_URL}${url}`, {
-      cache: "no-store",
-});
-    if (!res.ok) {
-        throw new Error('request failed')
-    }
-    return res.json()
+async function request<T>(url: string, signal?: AbortSignal): Promise<T> {
+  const res = await fetch(`${BASE_URL}${url}`, 
+    { cache: "no-store", 
+      signal 
+    });
+  if (!res.ok) 
+    throw new Error("request failed");
+  return res.json();
 }
 
-export async function getUsersApi(): Promise<UserApi[]> {
-    return request<UserApi[]>("/users")
+export async function getUsersApi(
+  params: { start: number; limit: number },
+  signal?: AbortSignal
+): Promise<UserApi[]> {
+  const qs = new URLSearchParams({
+    start: String(params.start),
+    limit: String(params.limit),
+  });
+    return request<UserApi[]>(`/users?${qs.toString()}`, signal)
 }
